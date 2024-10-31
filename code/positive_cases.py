@@ -31,7 +31,7 @@ def markers(positive_cases, filepath, outputfile):
         for line in f:
             parts = line.split("\t")
             if parts[1] in positive_cases:
-                dictionary[f"{parts[1]}"] = [recode.get(marker.strip(), None) for marker in parts[6:]] 
+                dictionary[f"{parts[1]}"] = "".join([recode.get(marker.strip(), None) for marker in parts[6:]] )
     save_to_csv(dictionary, outputfile)
 
 
