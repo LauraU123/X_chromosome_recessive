@@ -149,7 +149,7 @@ rule rewrite_haplotypes:
         fuse_adjacent = config["variants"]["fuse_adjacent"],
         fuse_adjacent_nr = config["variants"]["fuse_adjacent_nr"],
         min_markers = config["variants"]["min_markers"],
-        chrs = "X"
+        chrs = 39
     resources:
         mem="10G",
         time="00:05:06",
@@ -161,6 +161,7 @@ rule rewrite_haplotypes:
         --hapl {input.haplotype} \
         --min_markers {params.min_markers} \
         --length {params.min_length} \
+        --chr {params.chrs} \
         --n_fraction_max {params.n_fraction_max} \
         --fuse_adjacent {params.fuse_adjacent} \
         --fuse_adjacent_nr {params.fuse_adjacent_nr} \

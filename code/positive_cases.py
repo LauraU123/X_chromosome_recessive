@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import argparse
 
-
 def save_to_csv(data, outputfile):
     """Saving dictionary to csv"""
     df_output = pd.DataFrame.from_dict(data, orient='index')
