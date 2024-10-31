@@ -8,9 +8,9 @@ def rm_val(lst,  val):
 def find_founder(inputfile, outputfile):
     df = pd.read_csv(inputfile, sep=" ", header=None)
     df.columns = ["family", "ID", "father", "mother", "a", "b"]
-    father_IDs = list(set(df.father.values.tolist()))
-    father_ID = rm_val(father_IDs, "0")[0]
-    output_df = df[df.ID != father_ID]
+    mother_IDs = list(set(df.father.values.tolist()))
+    mother_ID = rm_val(father_IDs, "0")[0]
+    output_df = df[df.ID != mother_ID]
     output_df = output_df.drop(["father", "mother", "a", "b"], axis=1)
     output_df.to_csv(outputfile, index=False, header=False, sep=" ")
 

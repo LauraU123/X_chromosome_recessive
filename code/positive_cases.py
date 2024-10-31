@@ -25,8 +25,8 @@ def extract_positive_cases(filepath):
 def markers(positive_cases, filepath, outputfile):
     """Finding markers that correspond to the relevant"""
     recode = {
-        "2 2": "B", "1 1": "A", "1 2": "E", "2 1": "E", "0 0": "N",
-        "A A": "A", "B B": "B", "A B": "E", "B A": "E"
+        "2 2": "B", "1 1": "A", "1 2": "N", "2 1": "N", "0 0": "N",
+        "A A": "A", "B B": "B", "A B": "N", "B A": "N"
     }
     dictionary = {}
     with open(filepath) as f:
