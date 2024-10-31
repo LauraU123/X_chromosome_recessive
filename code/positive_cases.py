@@ -6,7 +6,6 @@ import argparse
 def save_to_csv(data, outputfile):
     """Saving dictionary to csv"""
     df_output = pd.DataFrame.from_dict(data, orient='index')
-    print(df_output)
     df_output.to_csv(outputfile, header=False)
     print(f"Output written to {outputfile}.")
 
@@ -35,7 +34,6 @@ def markers(positive_cases, filepath, outputfile):
             if parts[1] in positive_cases:
                 dictionary[f"{parts[1]}"] = [recode.get(marker.strip(), None) for marker in parts[6:]] 
     save_to_csv(dictionary, outputfile)
-    #return dictionary
 
 
 if __name__ == '__main__':
@@ -51,5 +49,3 @@ if __name__ == '__main__':
     positive_cases = extract_positive_cases(args.fam)
     markers(positive_cases, args.ped, args.output)
 
-
-#extract_positive_cases("Xchr/data/FAM1_2024Oct14.fam")
