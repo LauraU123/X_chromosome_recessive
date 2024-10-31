@@ -7,8 +7,9 @@ if inputdir[-1] == "/":
 #    print(inputdir)
 if outputdir[-1] == "/":
     outputdir = outputdir[:-1]
-
+print("test")
 input_files =  glob_wildcards(f"{inputdir}/{{prefix, [^/]+}}.fam")
+print(input_files)
 
 def expand_chromosomes(number_of_chrs):
     chromosomes_ = [str(i) for i in range(1, int(number_of_chrs)+1)]
@@ -34,13 +35,12 @@ def get_chr_nr(sp):
 
 rule all:
     input:
-        expand("{out}/locations_{prefix}.csv",prefix=input_files.prefix,  out=config["output"]), 
         expand("{out}/{prefix}_homozygosity.csv", prefix=input_files.prefix, out=config["output"]),
-        expand("{out}/{prefix}_plot.pdf", prefix=input_files.prefix, out=config["output"]),
         expand("{out}/{prefix}_founder.hom", prefix=input_files.prefix, out=config["output"]),
         expand("{out}/{prefix}_all_common.csv", prefix=input_files.prefix, out=config["output"]),
-        expand("{out}/{prefix}_common_without_paternal_homozygosity.csv", prefix=input_files.prefix, out=config["output"])
-
+        expand("{out}/{prefix}_common_without_paternal_homozygosity.csv", prefix=input_files.prefix, out=config["output"]),
+#expand("{out}/{prefix}_plot.pdf", prefix=input_files.prefix, out=config["output"]),
+#expand("{out}/locations_{prefix}.csv",prefix=input_files.prefix,  out=config["output"]), 
 
 rule extract_x:
     message:
@@ -68,7 +68,7 @@ rule extract_x:
     shell:
         """
         module load PLINK 
-        plink --chr X --mendel-duos --prune --maf {params.maf} --chr 39 --mind {params.mind} --me {params.mendel} --geno {params.geno} --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
+        plink --chr X --mendel-duos --prune --maf {params.maf} --mind {params.mind} --me {params.mendel} --geno {params.geno} --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
         """
     
 rule recode:
@@ -119,7 +119,7 @@ rule extract_positive_cases:
         ped = rules.recode.output.output,
         fam = outputdir + "/{prefix}_filtered.fam"
     output:
-        haplotypes = "{outputdir}/{prefix}_{chr}_output.csv"
+        haplotypes = "{outputdir}/{prefix}_X_output.csv"
     params:
         folder = "{outputdir}/",
     resources:
@@ -139,17 +139,17 @@ rule rewrite_haplotypes:
     message:
         """Finding linked locations..."""
     input:
-        haplotype = rules.paternal_haplotypes.output.paternal_haplotypes,
+        haplotype = rules.extract_positive_cases.output.haplotypes,
         map_ = rules.rename_genes.output
     output:
-        linked = ("{outputdir}/{prefix}_locations_{chr}.csv")
+        linked = ("{outputdir}/{prefix}_locations_X.csv")
     params:
         min_length = config['variants']['min_var_length'],
         n_fraction_max = config["variants"]["n_fraction_max"],
         fuse_adjacent = config["variants"]["fuse_adjacent"],
         fuse_adjacent_nr = config["variants"]["fuse_adjacent_nr"],
         min_markers = config["variants"]["min_markers"],
-        chrs = lambda wc: wc.get('chr')
+        chrs = "X"
     resources:
         mem="10G",
         time="00:05:06",
@@ -164,15 +164,14 @@ rule rewrite_haplotypes:
         --n_fraction_max {params.n_fraction_max} \
         --fuse_adjacent {params.fuse_adjacent} \
         --fuse_adjacent_nr {params.fuse_adjacent_nr} \
-        --output {output.linked} \
-        --chr {params.chrs}
+        --output {output.linked} 
         """
 
 rule filter_founder:
     message:
         """Writing file to filter for founders"""
     input:
-        rules.filter.output.fam
+        rules.extract_x.output.fam
     output:
         "{outputdir}/{prefix}_IDlist.txt"
     resources:
@@ -257,7 +256,7 @@ rule output_table:
         """Finding variants which are not homozygous in the paternal genome"""
     input:
         homozygous = rules.reformat_homozygosity.output,
-        linked = rules.merge_linked.output
+        linked = rules.rewrite_haplotypes.output
     output:
         table =  "{outputdir}/{prefix}_common_without_paternal_homozygosity.csv",
         all_common = "{outputdir}/{prefix}_all_common.csv"
@@ -273,12 +272,12 @@ rule output_table:
         --with_homozyg {output.all_common} \
         --common {output.table}
         """
-
+"""
 rule plot:
     message:
-        """constructing chromosome map plot with homozygosity and linked haplotypes"""
+        constructing chromosome map plot with homozygosity and linked haplotypes
     input:
-        linked = rules.merge_linked.output,
+        linked = rules.rewrite_haplotypes.output,
         chr_map = "chr_maps/" + config['species'] + "_chr_map.csv",
         homozyg = rules.reformat_homozygosity.output,
     output:
@@ -290,7 +289,6 @@ rule plot:
     params:
         chrs = get_chr_nr(config["species"])
     shell:
-        """
         module load matplotlib
         python3 code/plot.py \
         --chr_file {input.chr_map} \
@@ -298,20 +296,6 @@ rule plot:
         --linked {input.linked} \
         --homozyg {input.homozyg} \
         --plot {output.plot}
-        """
 
-rule cleanup:
-    input:
-        a= expand("{outputdir}/{prefix}_locations.csv",  outputdir=config["output"], prefix=input_files.prefix), 
-        b= expand("{outputdir}/{prefix}_homozygosity.csv", outputdir=config["output"], prefix=input_files.prefix),
-        c = expand("{outputdir}/{prefix}_plot.pdf", outputdir=config["output"], prefix=input_files.prefix),
-        e = expand("{outputdir}/{prefix}_all_common.csv", outputdir=config["output"], prefix=input_files.prefix),
-        f = expand( "{outputdir}/{prefix}_common_without_paternal_homozygosity.csv", outputdir=config["output"], prefix=input_files.prefix),
-        linked = expand("{outputdir}/{prefix}_locations_{chr}.csv", outputdir = config["output"],prefix=input_files.prefix,  chr=expand_chromosomes(get_chr_nr(config["species"]))),
-        haplotypes = expand("{outputdir}/{prefix}_{chr}_output.csv", outputdir = config["output"], prefix=input_files.prefix, chr=expand_chromosomes(get_chr_nr(config["species"])))
-    resources:
-        mem="500M",
-        time="00:05:05",
-        cpus=1
-    shell:
-        "rm -f {input.linked} {input.haplotypes}"     
+"""
+ 
