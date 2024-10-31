@@ -55,4 +55,4 @@ if __name__ == '__main__':
     markers(positive_cases, args.ped, args.output)
 
 
-extract_positive_cases("Xchr/data/FAM1_2024Oct14.fam")
+#extract_positive_cases("Xchr/data/FAM1_2024Oct14.fam")
