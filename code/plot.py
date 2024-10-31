@@ -12,8 +12,8 @@ def plotting(chr_file, chr_nr, locations, homozyg, output):
     homozygosity = pd.read_csv(homozyg, sep=";")
     scale = 1000000
     pdf_width = 17.69
-    pdf_height = 8.27
-    line_width = 5
+    pdf_height = 28.27
+    line_width = 3
     plt.figure(figsize=(pdf_width, pdf_height))
 
     fig, ax = plt.subplots()
@@ -62,7 +62,7 @@ def plotting(chr_file, chr_nr, locations, homozyg, output):
             ax.axhline(y=y, color='black', linestyle='--', linewidth=0.5)
     ax.yaxis.set_major_formatter(FuncFormatter(scale_format))
 
-    ax.legend(loc='lower right')
+    ax.legend(loc='lower center')
     ax.set_ylabel("Length in Mb")
     ax.set_xlabel("Chromosomes")
     ax.set_xticks(chromosomes['Chr'])
