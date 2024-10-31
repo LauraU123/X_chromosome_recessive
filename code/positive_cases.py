@@ -32,8 +32,9 @@ def markers(positive_cases, filepath, outputfile):
     with open(filepath) as f:
         for line in f:
             parts = line.split("\t")
+            print(parts)
             if parts[1] in positive_cases:
-                dictionary[f"{parts[1]}"] = "".join[recode.get(marker.strip(), None) for marker in parts[6:]] 
+                dictionary[f"{parts[1]}"] = [recode.get(marker.strip(), None) for marker in parts[6:]] 
     save_to_csv(haplo, outputfile)
     #return dictionary
 
@@ -49,8 +50,9 @@ if __name__ == '__main__':
     parser.add_argument("--chr", required=True, help="number of chromosomes")
     args = parser.parse_args()
     
+    positive_cases = extract_positive_cases(args.fam)
     print(f"Processing chromosome {args.chr}...")
-    markers(args.ped, args., args.output)
+    markers(positive_cases, args.ped, args.output)
 
 
 extract_positive_cases("Xchr/data/FAM1_2024Oct14.fam")
