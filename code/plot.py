@@ -30,19 +30,20 @@ def plotting(chr_file, chr_nr, locations, homozyg, output):
                 end_position = row['BP2'] / scale
                 ax.plot([run, run], [start_position, end_position], lw=line_width, color='blue')
 
-        else:
-            print(f"No variant on chromosome {run}")
+        #else:
+        #    print(f"No variant on chromosome {run}")
     # add homozygosity in paternal haplotypes in red
-    for run in range(1, 30):
+    for run in range(1, int(chr_nr)+1):
         subset = homozygosity[homozygosity['CHR'] == run]
         if len(subset) > 0:
+            print("yes", subset)
             for _, row in subset.iterrows():
                 start_position = row['BP1'] / scale
                 end_position = row['BP2'] / scale
                 ax.plot([run, run], [start_position, end_position], lw=line_width, color='red', alpha=0.5)
 
-        else:
-            print(f"No homozygosity on chromosome {run}")
+        #else:
+        #    print(f"No homozygosity on chromosome {run}")
 
     def scale_format(x, pos):
         return f"{int(x*scale):,}"

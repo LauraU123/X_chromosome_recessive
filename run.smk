@@ -39,7 +39,7 @@ rule all:
         expand("{out}/{prefix}_founder.hom", prefix=input_files.prefix, out=config["output"]),
         expand("{out}/{prefix}_all_common.csv", prefix=input_files.prefix, out=config["output"]),
         expand("{out}/{prefix}_common_without_paternal_homozygosity.csv", prefix=input_files.prefix, out=config["output"]),
-#expand("{out}/{prefix}_plot.pdf", prefix=input_files.prefix, out=config["output"]),
+        expand("{out}/{prefix}_plot.pdf", prefix=input_files.prefix, out=config["output"]),
 #expand("{out}/locations_{prefix}.csv",prefix=input_files.prefix,  out=config["output"]), 
 
 rule extract_x:
@@ -68,7 +68,7 @@ rule extract_x:
     shell:
         """
         module load PLINK 
-        plink --chr X --mendel-duos --indep --maf {params.maf} --mind {params.mind} --me {params.mendel} --geno {params.geno} --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
+        plink --chr X --mendel-duos --prune --maf {params.maf} --mind {params.mind} --me {params.mendel} --geno {params.geno} --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
         """
     
 rule recode:
@@ -156,6 +156,7 @@ rule rewrite_haplotypes:
         cpus=2
     shell:
         """
+        echo "CHR;BP1;BP2\n" >> {output.linked}
         python3 code/common_locations.py \
         --map {input.map_} \
         --hapl {input.haplotype} \
@@ -273,10 +274,10 @@ rule output_table:
         --with_homozyg {output.all_common} \
         --common {output.table}
         """
-"""
+
 rule plot:
     message:
-        constructing chromosome map plot with homozygosity and linked haplotypes
+        """constructing chromosome map plot with homozygosity and linked haplotypes"""
     input:
         linked = rules.rewrite_haplotypes.output,
         chr_map = "chr_maps/" + config['species'] + "_chr_map.csv",
@@ -288,8 +289,9 @@ rule plot:
         time="00:05:05",
         cpus=1
     params:
-        chrs = get_chr_nr(config["species"])
+        chrs = get_chr_nr(config["species"])+1
     shell:
+        """
         module load matplotlib
         python3 code/plot.py \
         --chr_file {input.chr_map} \
@@ -297,6 +299,7 @@ rule plot:
         --linked {input.linked} \
         --homozyg {input.homozyg} \
         --plot {output.plot}
+        """
 
-"""
+
  
