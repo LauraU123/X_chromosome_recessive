@@ -33,26 +33,24 @@ def markers(positive_cases, filepath, outputfile):
         for line in f:
             parts = line.split("\t")
             if parts[1] in positive_cases:
-                dictionary[f"{parts[1]}"] = [recode.get(marker.strip(), None) for marker in parts[6:]] 
+                dictionary[f"{parts[1]}"] = "".join[recode.get(marker.strip(), None) for marker in parts[6:]] 
     save_to_csv(haplo, outputfile)
     #return dictionary
 
-def process_haplotypes(dictionary, trios, loc_list, outputfile):
-    """processing haplotype trios"""
-    haplo = {}
 
-    for trio in trios:
-        if set(trio).issubset(dictionary):
-            trio_data = np.array([dictionary[t] for t in trio])
-            df = pd.DataFrame(data=trio_data, index=["offspring", "father", "mother"], columns=loc_list).T
-            sequence = []
-
-            for loc, (offspring, father, mother) in df[df.index.str.startswith(chromosome)].iterrows():
-                sequence.append(determine_haplotype(offspring, father, mother))
-           
-            haplo[f"{trio[0]}_1"] = ''.join(sequence)
-   
-    save_to_csv(haplo, outputfile)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description="Find paternal haplotypes from input data",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument("--ped", required=True, help="input .ped file")
+    parser.add_argument("--fam", required=True, help="input .fam file")
+    parser.add_argument("--output", required=False, help=".csv file")
+    parser.add_argument("--chr", required=True, help="number of chromosomes")
+    args = parser.parse_args()
+    
+    print(f"Processing chromosome {args.chr}...")
+    markers(args.ped, args., args.output)
 
 
 extract_positive_cases("Xchr/data/FAM1_2024Oct14.fam")
