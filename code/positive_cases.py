@@ -25,17 +25,16 @@ def extract_positive_cases(filepath):
 def markers(positive_cases, filepath, outputfile):
     """Finding markers that correspond to the relevant"""
     recode = {
-        "2 2": "B", "1 1": "A", "1 2": "N", "2 1": "N", "0 0": "N",
-        "A A": "A", "B B": "B", "A B": "N", "B A": "N"
+        "2 2": "B", "1 1": "A", "1 2": "E", "2 1": "E", "0 0": "N",
+        "A A": "A", "B B": "B", "A B": "E", "B A": "E"
     }
     dictionary = {}
     with open(filepath) as f:
         for line in f:
             parts = line.split("\t")
-            print(parts)
             if parts[1] in positive_cases:
                 dictionary[f"{parts[1]}"] = [recode.get(marker.strip(), None) for marker in parts[6:]] 
-    save_to_csv(haplo, outputfile)
+    save_to_csv(dictionary, outputfile)
     #return dictionary
 
 
@@ -47,11 +46,9 @@ if __name__ == '__main__':
     parser.add_argument("--ped", required=True, help="input .ped file")
     parser.add_argument("--fam", required=True, help="input .fam file")
     parser.add_argument("--output", required=False, help=".csv file")
-    parser.add_argument("--chr", required=True, help="number of chromosomes")
     args = parser.parse_args()
     
     positive_cases = extract_positive_cases(args.fam)
-    print(f"Processing chromosome {args.chr}...")
     markers(positive_cases, args.ped, args.output)
 
 

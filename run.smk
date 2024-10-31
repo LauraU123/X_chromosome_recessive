@@ -7,9 +7,9 @@ if inputdir[-1] == "/":
 #    print(inputdir)
 if outputdir[-1] == "/":
     outputdir = outputdir[:-1]
-print("test")
+
 input_files =  glob_wildcards(f"{inputdir}/{{prefix, [^/]+}}.fam")
-print(input_files)
+
 
 def expand_chromosomes(number_of_chrs):
     chromosomes_ = [str(i) for i in range(1, int(number_of_chrs)+1)]
@@ -68,7 +68,7 @@ rule extract_x:
     shell:
         """
         module load PLINK 
-        plink --chr X --mendel-duos --prune --maf {params.maf} --mind {params.mind} --me {params.mendel} --geno {params.geno} --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
+        plink --chr X --mendel-duos --indep --maf {params.maf} --mind {params.mind} --me {params.mendel} --geno {params.geno} --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
         """
     
 rule recode:
