@@ -1,0 +1,26 @@
+# Parameters for medium density data
+# output folders
+input: ""
+output: "results"
+
+species: "dog"
+
+filter:
+  me: 0.05 0.1
+  geno: 0.1
+  mind: 0.1
+  maf: 0.01
+
+variants:
+  min_markers: 5
+  fuse_adjacent: True
+  fuse_adjacent_nr: 1
+  n_fraction_max: 0.3
+  min_var_length: 1200000
+
+homozygosity_params:
+  density: 50
+  kb: 1000
+  snp: 20
+  window_missing: 5
+  window_snp: 50
